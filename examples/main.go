@@ -38,24 +38,33 @@ func main() {
 		log.Fatalf("subscribe create update func failed: %s", err)
 	}
 
-	if err := c.Create(ctx, []configurator.Entity{sedmax.NewObject(777, sedmax.RootObjectID, "New object", 0)}); err != nil {
+	if err := c.Create(ctx, []configurator.Entity{
+		sedmax.NewObject(1, sedmax.RootObjectID, "New first object", 0),
+		sedmax.NewObject(777, sedmax.RootObjectID, "New object", 0),
+	}); err != nil {
 		log.Fatalf("create failed: %s", err)
 	}
 
-	if err := c.Update(ctx, []configurator.Entity{sedmax.NewObject(777, sedmax.RootObjectID, "New object", 0)}); err != nil {
+	if err := c.Update(ctx, []configurator.Entity{
+		sedmax.NewObject(777, sedmax.RootObjectID, "New object", 0),
+	}); err != nil {
 		log.Fatalf("update failed: %s", err)
 	}
 
-	if err := c.Update(ctx, []configurator.Entity{sedmax.NewObject(777, sedmax.RootObjectID, "My object", 0)}); err != nil {
+	if err := c.Update(ctx, []configurator.Entity{
+		sedmax.NewObject(777, sedmax.RootObjectID, "My object", 0),
+	}); err != nil {
 		log.Fatalf("update failed: %s", err)
 	}
 
-	if err := c.Delete(ctx, []configurator.ID{sedmax.ObjectID(777)}); err != nil {
+	if err := c.Delete(ctx, []configurator.ID{
+		sedmax.ObjectID(777),
+	}); err != nil {
 		log.Fatalf("delete failed: %s", err)
 	}
 
-	var entities = []configurator.Entity{}
-	if err := c.Read(ctx, &entities); err != nil {
+	entities, err := c.Read(ctx)
+	if err != nil {
 		log.Fatalf("read failed: %s", err)
 	}
 	for _, e := range entities {

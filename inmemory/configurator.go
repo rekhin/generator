@@ -22,11 +22,12 @@ func NewConfigurator() *Configurator {
 	}
 }
 
-func (c *Configurator) Read(_ context.Context, entities *[]configurator.Entity) error {
+func (c *Configurator) Read(_ context.Context) ([]configurator.Entity, error) {
+	var entities []configurator.Entity
 	for _, entity := range c.entities {
-		*entities = append(*entities, entity)
+		entities = append(entities, entity)
 	}
-	return nil
+	return entities, nil
 }
 
 func (c *Configurator) Create(_ context.Context, entities []configurator.Entity) error {
@@ -95,3 +96,11 @@ func (c *Configurator) SubscribeDeleteFunc(_ context.Context, f func(ids []confi
 	c.deleteFunc = f
 	return nil
 }
+
+var _ configurator.Reader = &Configurator{}
+var _ configurator.Creator = &Configurator{}
+var _ configurator.Updater = &Configurator{}
+var _ configurator.Deleter = &Configurator{}
+var _ configurator.CreateSubscriber = &Configurator{}
+var _ configurator.UpdateSubscriber = &Configurator{}
+var _ configurator.DeleteSubscriber = &Configurator{}

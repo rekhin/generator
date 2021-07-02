@@ -3,7 +3,7 @@ package configurator
 import "context"
 
 type Reader interface {
-	Read(context.Context, []Entity) error
+	Read(context.Context) ([]Entity, error)
 }
 
 type Creator interface {
