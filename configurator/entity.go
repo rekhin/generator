@@ -4,4 +4,4 @@ type Entity interface {
 	ID() ID
 }
 
-type ID string
+type ID interface{}

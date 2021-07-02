@@ -28,10 +28,10 @@ func (c *Configurator) Delete(context.Context, []configurator.ID) error {
 	return nil
 }
 
-func (c *Configurator) SubscribeCreateUpdate(context.Context, func(entities []configurator.Entity)) error {
+func (c *Configurator) SubscribeCreateUpdateFunc(context.Context, func(entities []configurator.Entity)) error {
 	return nil
 }
 
-func (c *Configurator) SubscribeDelete(context.Context, func(ids []configurator.ID)) error {
+func (c *Configurator) SubscribeDeleteFunc(context.Context, func(ids []configurator.ID)) error {
 	return nil
 }

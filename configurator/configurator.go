@@ -19,9 +19,9 @@ type Deleter interface {
 }
 
 type CreateUpdateSubscriber interface {
-	SubscribeCreateUpdate(context.Context, func(entities []Entity)) error
+	SubscribeCreateUpdateFunc(context.Context, func(entities []Entity)) error
 }
 
 type DeleteSubscriber interface {
-	SubscribeDelete(context.Context, func(ids []ID)) error
+	SubscribeDeleteFunc(context.Context, func(ids []ID)) error
 }

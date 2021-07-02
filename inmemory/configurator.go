@@ -69,12 +69,12 @@ func (c *Configurator) Delete(_ context.Context, ids []configurator.ID) error {
 	return nil
 }
 
-func (c *Configurator) SubscribeCreateUpdate(_ context.Context, f func(entities []configurator.Entity)) error {
+func (c *Configurator) SubscribeCreateUpdateFunc(_ context.Context, f func(entities []configurator.Entity)) error {
 	c.createUpdateFunc = f
 	return nil
 }
 
-func (c *Configurator) SubscribeDelete(_ context.Context, f func(ids []configurator.ID)) error {
+func (c *Configurator) SubscribeDeleteFunc(_ context.Context, f func(ids []configurator.ID)) error {
 	c.deleteFunc = f
 	return nil
 }
