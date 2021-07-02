@@ -10,12 +10,29 @@ import (
 )
 
 func main() {
-	ctx := context.TODO()
 	c := inmemory.NewConfigurator()
 
-	if err := c.SubscribeCreateUpdateFunc(ctx, func(entities []configurator.Entity) {
+	ctx := context.TODO()
+
+	if err := c.SubscribeCreateFunc(ctx, func(entities []configurator.Entity) {
 		for _, e := range entities {
-			log.Printf("created or updated entity %v", e)
+			log.Printf("created entity %v", e)
+		}
+	}); err != nil {
+		log.Fatalf("subscribe create update func failed: %s", err)
+	}
+
+	if err := c.SubscribeUpdateFunc(ctx, func(entities []configurator.Entity) {
+		for _, e := range entities {
+			log.Printf("updated entity %v", e)
+		}
+	}); err != nil {
+		log.Fatalf("subscribe create update func failed: %s", err)
+	}
+
+	if err := c.SubscribeDeleteFunc(ctx, func(ids []configurator.ID) {
+		for _, id := range ids {
+			log.Printf("deleted entity with id %v", id)
 		}
 	}); err != nil {
 		log.Fatalf("subscribe create update func failed: %s", err)
@@ -25,7 +42,23 @@ func main() {
 		log.Fatalf("create failed: %s", err)
 	}
 
+	if err := c.Update(ctx, []configurator.Entity{sedmax.NewObject(777, sedmax.RootObjectID, "New object", 0)}); err != nil {
+		log.Fatalf("update failed: %s", err)
+	}
+
 	if err := c.Update(ctx, []configurator.Entity{sedmax.NewObject(777, sedmax.RootObjectID, "My object", 0)}); err != nil {
 		log.Fatalf("update failed: %s", err)
+	}
+
+	if err := c.Delete(ctx, []configurator.ID{sedmax.ObjectID(777)}); err != nil {
+		log.Fatalf("delete failed: %s", err)
+	}
+
+	var entities = []configurator.Entity{}
+	if err := c.Read(ctx, &entities); err != nil {
+		log.Fatalf("read failed: %s", err)
+	}
+	for _, e := range entities {
+		log.Printf("readed entity %v", e)
 	}
 }

@@ -3,7 +3,7 @@ package sedmax
 import "github.com/rekhin/generator/configurator"
 
 type Node interface {
-	ID() configurator.ID
+	configurator.Entity
 	ParentID() configurator.ID
 	Name() string
 	Sort() int

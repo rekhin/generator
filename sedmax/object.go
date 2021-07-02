@@ -30,6 +30,26 @@ func NewObject(id, parentID ObjectID, name string, sort int) Object {
 	}
 }
 
+func (o *object) Equal(e configurator.Entity) bool {
+	o2, ok := e.(*object)
+	if !ok {
+		return false
+	}
+	if o2.id != o.id {
+		return false
+	}
+	if o2.parentID != o.parentID {
+		return false
+	}
+	if o2.name != o.name {
+		return false
+	}
+	if o2.sort != o.sort {
+		return false
+	}
+	return true
+}
+
 func (o *object) ID() configurator.ID {
 	return o.id
 }

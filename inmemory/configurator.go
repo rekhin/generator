@@ -8,16 +8,17 @@ import (
 )
 
 type Configurator struct {
-	entities         map[configurator.ID]configurator.Entity // TODO make it safe
-	createUpdateFunc func(entities []configurator.Entity)
-	deleteFunc       func(ids []configurator.ID)
+	entities   map[configurator.ID]configurator.Entity // TODO make it safe
+	createFunc func(entities []configurator.Entity)
+	updateFunc func(entities []configurator.Entity)
+	deleteFunc func(ids []configurator.ID)
 }
 
 func NewConfigurator() *Configurator {
 	return &Configurator{
-		entities:         make(map[configurator.ID]configurator.Entity),
-		createUpdateFunc: func(entities []configurator.Entity) {},
-		deleteFunc:       func(ids []configurator.ID) {},
+		entities:   make(map[configurator.ID]configurator.Entity),
+		createFunc: func(entities []configurator.Entity) {},
+		deleteFunc: func(ids []configurator.ID) {},
 	}
 }
 
@@ -31,14 +32,17 @@ func (c *Configurator) Read(_ context.Context, entities *[]configurator.Entity) 
 func (c *Configurator) Create(_ context.Context, entities []configurator.Entity) error {
 	var createEntities []configurator.Entity
 	for _, entity := range entities {
-		entityID := entity.ID()
-		if _, ok := c.entities[entityID]; ok {
-			return fmt.Errorf("entity with id '%v' already exist", entityID)
+		id := entity.ID()
+		if _, ok := c.entities[id]; ok {
+			return fmt.Errorf("entity with id '%v' already exist", id)
 		}
-		c.entities[entity.ID()] = entity
 		createEntities = append(createEntities, entity)
 	}
-	c.createUpdateFunc(createEntities)
+	for _, entity := range createEntities {
+		id := entity.ID()
+		c.entities[id] = entity
+	}
+	c.createFunc(createEntities)
 	return nil
 }
 
@@ -49,10 +53,16 @@ func (c *Configurator) Update(_ context.Context, entities []configurator.Entity)
 		if _, ok := c.entities[id]; !ok {
 			return fmt.Errorf("entity with id '%v' does not exist", id)
 		}
-		c.entities[id] = entity
+		if c.entities[id].Equal(entity) {
+			continue
+		}
 		updateEntities = append(updateEntities, entity)
 	}
-	c.createUpdateFunc(updateEntities)
+	for _, entity := range updateEntities {
+		id := entity.ID()
+		c.entities[id] = entity
+	}
+	c.updateFunc(updateEntities)
 	return nil
 }
 
@@ -62,15 +72,22 @@ func (c *Configurator) Delete(_ context.Context, ids []configurator.ID) error {
 		if _, ok := c.entities[id]; !ok {
 			return fmt.Errorf("entity with id '%v' does not exist", id)
 		}
-		delete(c.entities, id)
 		deleteIDs = append(deleteIDs, id)
+	}
+	for _, id := range deleteIDs {
+		delete(c.entities, id)
 	}
 	c.deleteFunc(deleteIDs)
 	return nil
 }
 
-func (c *Configurator) SubscribeCreateUpdateFunc(_ context.Context, f func(entities []configurator.Entity)) error {
-	c.createUpdateFunc = f
+func (c *Configurator) SubscribeCreateFunc(_ context.Context, f func(entities []configurator.Entity)) error {
+	c.createFunc = f
+	return nil
+}
+
+func (c *Configurator) SubscribeUpdateFunc(_ context.Context, f func(entities []configurator.Entity)) error {
+	c.updateFunc = f
 	return nil
 }
 
