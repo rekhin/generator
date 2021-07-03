@@ -1,4 +1,4 @@
-package configurator
+package repository
 
 import "context"
 
