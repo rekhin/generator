@@ -22,78 +22,78 @@ func NewRepository() *Repository {
 	}
 }
 
-func (c *Repository) Read(_ context.Context) ([]repository.Entity, error) {
+func (r *Repository) Read(_ context.Context) ([]repository.Entity, error) {
 	var entities []repository.Entity
-	for _, entity := range c.entities {
+	for _, entity := range r.entities {
 		entities = append(entities, entity)
 	}
 	return entities, nil
 }
 
-func (c *Repository) Create(_ context.Context, entities []repository.Entity) error {
+func (r *Repository) Create(_ context.Context, entities []repository.Entity) error {
 	var createEntities []repository.Entity
 	for _, entity := range entities {
 		id := entity.ID()
-		if _, ok := c.entities[id]; ok {
+		if _, ok := r.entities[id]; ok {
 			return fmt.Errorf("entity with id '%v' already exist", id)
 		}
 		createEntities = append(createEntities, entity)
 	}
 	for _, entity := range createEntities {
 		id := entity.ID()
-		c.entities[id] = entity
+		r.entities[id] = entity
 	}
-	c.createFunc(createEntities)
+	r.createFunc(createEntities)
 	return nil
 }
 
-func (c *Repository) Update(_ context.Context, entities []repository.Entity) error {
+func (r *Repository) Update(_ context.Context, entities []repository.Entity) error {
 	var updateEntities []repository.Entity
 	for _, entity := range entities {
 		id := entity.ID()
-		if _, ok := c.entities[id]; !ok {
+		if _, ok := r.entities[id]; !ok {
 			return fmt.Errorf("entity with id '%v' does not exist", id)
 		}
-		if c.entities[id].Equal(entity) {
+		if r.entities[id].Equal(entity) {
 			continue
 		}
 		updateEntities = append(updateEntities, entity)
 	}
 	for _, entity := range updateEntities {
 		id := entity.ID()
-		c.entities[id] = entity
+		r.entities[id] = entity
 	}
-	c.updateFunc(updateEntities)
+	r.updateFunc(updateEntities)
 	return nil
 }
 
-func (c *Repository) Delete(_ context.Context, ids []repository.ID) error {
+func (r *Repository) Delete(_ context.Context, ids []repository.ID) error {
 	var deleteIDs []repository.ID
 	for _, id := range ids {
-		if _, ok := c.entities[id]; !ok {
+		if _, ok := r.entities[id]; !ok {
 			return fmt.Errorf("entity with id '%v' does not exist", id)
 		}
 		deleteIDs = append(deleteIDs, id)
 	}
 	for _, id := range deleteIDs {
-		delete(c.entities, id)
+		delete(r.entities, id)
 	}
-	c.deleteFunc(deleteIDs)
+	r.deleteFunc(deleteIDs)
 	return nil
 }
 
-func (c *Repository) SubscribeCreateFunc(_ context.Context, f func(entities []repository.Entity)) error {
-	c.createFunc = f
+func (r *Repository) SubscribeCreateFunc(_ context.Context, f func(entities []repository.Entity)) error {
+	r.createFunc = f
 	return nil
 }
 
-func (c *Repository) SubscribeUpdateFunc(_ context.Context, f func(entities []repository.Entity)) error {
-	c.updateFunc = f
+func (r *Repository) SubscribeUpdateFunc(_ context.Context, f func(entities []repository.Entity)) error {
+	r.updateFunc = f
 	return nil
 }
 
-func (c *Repository) SubscribeDeleteFunc(_ context.Context, f func(ids []repository.ID)) error {
-	c.deleteFunc = f
+func (r *Repository) SubscribeDeleteFunc(_ context.Context, f func(ids []repository.ID)) error {
+	r.deleteFunc = f
 	return nil
 }
 
