@@ -2,30 +2,30 @@ package repository
 
 import "context"
 
-type Reader interface {
-	Read(context.Context) ([]Entity, error)
+type EntityReader interface {
+	ReadEntity(context.Context, ID) (Entity, bool, error)
 }
 
-type Creator interface {
-	Create(context.Context, []Entity) error
+type EntitiesReader interface {
+	ReadEntities(context.Context) ([]Entity, error)
 }
 
-type Updater interface {
-	Update(context.Context, []Entity) error
+type EntitiesCreator interface {
+	CreateEntities(context.Context, ...Entity) error
 }
 
-type Deleter interface {
-	Delete(context.Context, []ID) error
+type EntitiesUpdater interface {
+	UpdateEntities(context.Context, ...Entity) error
 }
 
-type CreateSubscriber interface {
-	SubscribeCreateFunc(context.Context, func(entities []Entity)) error
+type EntitiesDeleter interface {
+	DeleteEntitiesWithIDs(context.Context, ...ID) error
 }
 
-type UpdateSubscriber interface {
-	SubscribeUpdateFunc(context.Context, func(entities []Entity)) error
+type DeltaPublisher interface {
+	PublishDelta(context.Context, Delta) error
 }
 
-type DeleteSubscriber interface {
-	SubscribeDeleteFunc(context.Context, func(ids []ID)) error
+type DeltaSubscriber interface {
+	SubscribeDelta(context.Context, func(Delta)) error
 }

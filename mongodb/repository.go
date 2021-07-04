@@ -12,26 +12,22 @@ func NewRepository() *Repository {
 	return &Repository{}
 }
 
-func (c *Repository) Read(context.Context, []repository.Entity) error {
+func (c *Repository) ReadEntities(context.Context) ([]repository.Entity, error) {
+	return nil, nil
+}
+
+func (c *Repository) CreateEntities(context.Context, ...repository.Entity) error {
 	return nil
 }
 
-func (c *Repository) Create(context.Context, []repository.Entity) error {
+func (c *Repository) UpdateEntities(context.Context, ...repository.Entity) error {
 	return nil
 }
 
-func (c *Repository) Update(context.Context, []repository.Entity) error {
+func (c *Repository) DeleteEntitiesWithIDs(context.Context, ...repository.ID) error {
 	return nil
 }
 
-func (c *Repository) Delete(context.Context, []repository.ID) error {
-	return nil
-}
-
-func (c *Repository) SubscribeCreateUpdateFunc(context.Context, func(entities []repository.Entity)) error {
-	return nil
-}
-
-func (c *Repository) SubscribeDeleteFunc(context.Context, func(ids []repository.ID)) error {
+func (c *Repository) SubscribeDelta(context.Context, func(repository.Delta)) error {
 	return nil
 }

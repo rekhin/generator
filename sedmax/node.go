@@ -1,6 +1,8 @@
 package sedmax
 
-import "github.com/rekhin/generator/repository"
+import (
+	"github.com/rekhin/generator/repository"
+)
 
 type Node interface {
 	repository.Entity
@@ -16,40 +18,40 @@ type node struct {
 	sort     int
 }
 
-func (o node) Equal(e repository.Entity) bool {
-	second, ok := e.(*node)
+func (n node) Equal(e repository.Entity) bool {
+	second, ok := e.(Node)
 	if !ok {
 		return false
 	}
-	if o.id != second.id {
+	if n.ID() != second.ID() {
 		return false
 	}
-	if o.parentID != second.parentID {
+	if n.ParentID() != second.ParentID() {
 		return false
 	}
-	if o.name != second.name {
+	if n.Name() != second.Name() {
 		return false
 	}
-	if o.sort != second.sort {
+	if n.Sort() != second.Sort() {
 		return false
 	}
 	return true
 }
 
-func (o node) ID() repository.ID {
-	return o.id
+func (n node) ID() repository.ID {
+	return n.id
 }
 
-func (o node) ParentID() repository.ID {
-	return o.parentID
+func (n node) ParentID() repository.ID {
+	return n.parentID
 }
 
-func (o node) Name() string {
-	return o.name
+func (n node) Name() string {
+	return n.name
 }
 
-func (o node) Sort() int {
-	return o.sort
+func (n node) Sort() int {
+	return n.sort
 }
 
 // type ID interface {

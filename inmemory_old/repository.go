@@ -8,19 +8,17 @@ import (
 )
 
 type Repository struct {
-	entities          map[repository.ID]repository.Entity
-	publishDeltaFuncs []func(repository.Delta)
+	entities              map[repository.ID]repository.Entity // TODO make it safe
+	createEntities        []repository.Entity                 // TODO make it safe
+	updateEntities        []repository.Entity                 // TODO make it safe
+	deleteEntitiesWithIDs []repository.ID                     // TODO make it safe
+	deltaFuncs            []func(repository.Delta)
 }
 
 func NewRepository() *Repository {
 	return &Repository{
 		entities: make(map[repository.ID]repository.Entity),
 	}
-}
-
-func (r *Repository) ReadEntity(_ context.Context, id repository.ID) (repository.Entity, bool, error) {
-	entity, ok := r.entities[id]
-	return entity, ok, nil
 }
 
 func (r *Repository) ReadEntities(_ context.Context) ([]repository.Entity, error) {
@@ -32,23 +30,17 @@ func (r *Repository) ReadEntities(_ context.Context) ([]repository.Entity, error
 }
 
 func (r *Repository) CreateEntities(_ context.Context, entities ...repository.Entity) error {
-	var createEntities []repository.Entity
 	for _, entity := range entities {
 		id := entity.ID()
 		if _, ok := r.entities[id]; ok {
 			return fmt.Errorf("entity with id '%v' already exist", id)
 		}
-		r.entities[id] = entity
-		createEntities = append(createEntities, entity)
-	}
-	for _, publishDeltaFunc := range r.publishDeltaFuncs {
-		publishDeltaFunc(repository.Delta{CreateEntities: createEntities})
+		r.createEntities = append(r.createEntities, entity)
 	}
 	return nil
 }
 
 func (r *Repository) UpdateEntities(_ context.Context, entities ...repository.Entity) error {
-	var updateEntities []repository.Entity
 	for _, entity := range entities {
 		id := entity.ID()
 		exist, ok := r.entities[id]
@@ -58,26 +50,39 @@ func (r *Repository) UpdateEntities(_ context.Context, entities ...repository.En
 		if entity.Equal(exist) {
 			continue
 		}
-		r.entities[id] = entity
-		updateEntities = append(updateEntities, entity)
-	}
-	for _, publishDeltaFunc := range r.publishDeltaFuncs {
-		publishDeltaFunc(repository.Delta{UpdateEntities: updateEntities})
+		r.updateEntities = append(r.updateEntities, entity)
 	}
 	return nil
 }
 
 func (r *Repository) DeleteEntitiesWithIDs(_ context.Context, ids ...repository.ID) error {
-	var deleteEntitiesWithIDs []repository.ID
 	for _, id := range ids {
 		if _, ok := r.entities[id]; !ok {
 			return fmt.Errorf("entity with id '%v' does not exist", id)
 		}
-		delete(r.entities, id)
-		deleteEntitiesWithIDs = append(deleteEntitiesWithIDs, id)
+		r.deleteEntitiesWithIDs = append(r.deleteEntitiesWithIDs, id)
 	}
-	for _, publishDeltaFunc := range r.publishDeltaFuncs {
-		publishDeltaFunc(repository.Delta{DeleteEntitiesWithIDs: deleteEntitiesWithIDs})
+	return nil
+}
+
+func (r *Repository) Accept(ctx context.Context) error {
+	for _, entity := range r.createEntities {
+		id := entity.ID()
+		r.entities[id] = entity
+	}
+	for _, entity := range r.updateEntities {
+		id := entity.ID()
+		r.entities[id] = entity
+	}
+	for _, id := range r.deleteEntitiesWithIDs {
+		delete(r.entities, id)
+	}
+	for _, deltaFunc := range r.deltaFuncs {
+		deltaFunc(repository.Delta{
+			CreateEntities:        r.createEntities,
+			UpdateEntities:        r.updateEntities,
+			DeleteEntitiesWithIDs: r.deleteEntitiesWithIDs,
+		})
 	}
 	return nil
 }
@@ -92,16 +97,18 @@ func (r *Repository) PublishDelta(ctx context.Context, d repository.Delta) error
 	if err := r.DeleteEntitiesWithIDs(ctx, d.DeleteEntitiesWithIDs...); err != nil {
 		return fmt.Errorf("delete entities with ids failed: %s", err)
 	}
+	if err := r.Accept(ctx); err != nil {
+		return fmt.Errorf("accept failed: %s", err)
+	}
 	return nil
 }
 
 func (r *Repository) SubscribeDelta(_ context.Context, f func(repository.Delta)) error {
-	r.publishDeltaFuncs = append(r.publishDeltaFuncs, f)
+	r.deltaFuncs = append(r.deltaFuncs, f)
 	return nil
 }
 
 var (
-	_ repository.EntityReader    = &Repository{}
 	_ repository.EntitiesReader  = &Repository{}
 	_ repository.EntitiesCreator = &Repository{}
 	_ repository.EntitiesUpdater = &Repository{}

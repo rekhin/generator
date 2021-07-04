@@ -1,5 +1,7 @@
 package sedmax
 
+import "github.com/rekhin/generator/repository"
+
 type Object interface {
 	Node
 }
@@ -25,6 +27,16 @@ func NewObject(id, parentID ObjectID, name string, sort int) Object {
 			sort:     sort,
 		},
 	}
+}
+
+func (o object) Equal(e repository.Entity) bool {
+	if ok := o.node.Equal(e); !ok {
+		return false
+	}
+	if _, ok := e.(Object); !ok {
+		return false
+	}
+	return true
 }
 
 // func (o *object) Equal(e repository.Entity) bool {
