@@ -34,7 +34,7 @@ func (r *Repository) ReadEntities(_ context.Context) ([]repository.Entity, error
 func (r *Repository) CreateEntities(_ context.Context, entities ...repository.Entity) error {
 	var createEntities []repository.Entity
 	for _, entity := range entities {
-		id := entity.ID()
+		id := entity.GetID()
 		if _, ok := r.entities[id]; ok {
 			return fmt.Errorf("entity with id '%v' already exist", id)
 		}
@@ -50,7 +50,7 @@ func (r *Repository) CreateEntities(_ context.Context, entities ...repository.En
 func (r *Repository) UpdateEntities(_ context.Context, entities ...repository.Entity) error {
 	var updateEntities []repository.Entity
 	for _, entity := range entities {
-		id := entity.ID()
+		id := entity.GetID()
 		exist, ok := r.entities[id]
 		if !ok {
 			return fmt.Errorf("entity with id '%v' does not exist", id)

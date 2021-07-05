@@ -2,7 +2,7 @@ package repository
 
 type Entity interface {
 	Equal(Entity) bool
-	ID() ID
+	GetID() ID
 }
 
 type ID interface{}

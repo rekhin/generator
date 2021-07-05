@@ -2,10 +2,10 @@ package sedmax
 
 type Tag interface {
 	Node
-	Active() bool
-	Profile() Profile
-	Type() Type
-	Unit() string
+	GetActive() bool
+	GetProfile() Profile
+	GetType() Type
+	GetUnit() string
 }
 
 type Profile int
@@ -37,40 +37,3 @@ const (
 	TypeFloat64        // float64
 	TypeString         // string
 )
-
-// RTDTag ...
-type RTDTag interface {
-	Tag
-}
-
-type RTDTagID int
-
-func (id RTDTagID) Category() Category {
-	return CategoryRTDTag
-}
-
-// ElecrtoTag ...
-type ElecrtoTag interface {
-	Tag
-}
-
-type ElecrtoTagID struct {
-	DeviceID
-	Profile
-	Code string
-}
-
-func (id ElecrtoTagID) Category() Category {
-	return CategoryElectroTag
-}
-
-// EnergyTag ...
-type EnergyTag interface {
-	Tag
-}
-
-type EnergyTagID int
-
-func (id EnergyTagID) Category() Category {
-	return CategoryEnergyTag
-}

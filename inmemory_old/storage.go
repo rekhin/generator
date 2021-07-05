@@ -33,7 +33,7 @@ func (s *Storage) ReadEntities(_ context.Context) ([]repository.Entity, error) {
 
 func (s *Storage) CreateEntities(_ context.Context, entities ...repository.Entity) error {
 	for _, entity := range entities {
-		id := entity.ID()
+		id := entity.GetID()
 		if _, ok := s.entities[id]; ok {
 			return fmt.Errorf("entity with id '%v' already exist", id)
 		}
@@ -44,7 +44,7 @@ func (s *Storage) CreateEntities(_ context.Context, entities ...repository.Entit
 
 func (s *Storage) UpdateEntities(_ context.Context, entities ...repository.Entity) error {
 	for _, entity := range entities {
-		id := entity.ID()
+		id := entity.GetID()
 		exist, ok := s.entities[id]
 		if !ok {
 			return fmt.Errorf("entity with id '%v' does not exist", id)

@@ -23,7 +23,7 @@ func NewCache(r repository.EntityReader) *Cache {
 
 func (c *Cache) CreateEntities(ctx context.Context, entities ...repository.Entity) error {
 	for _, entity := range entities {
-		id := entity.ID()
+		id := entity.GetID()
 		_, ok, err := c.entityReader.ReadEntity(ctx, id)
 		if err != nil {
 			return fmt.Errorf("read entity failed: %s", err)
@@ -38,7 +38,7 @@ func (c *Cache) CreateEntities(ctx context.Context, entities ...repository.Entit
 
 func (c *Cache) UpdateEntities(ctx context.Context, entities ...repository.Entity) error {
 	for _, entity := range entities {
-		id := entity.ID()
+		id := entity.GetID()
 		exist, ok, err := c.entityReader.ReadEntity(ctx, id)
 		if err != nil {
 			return fmt.Errorf("read entity failed: %s", err)

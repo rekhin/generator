@@ -7,26 +7,11 @@ import (
 	"github.com/rekhin/generator/inmemory"
 	"github.com/rekhin/generator/repository"
 	"github.com/rekhin/generator/sedmax"
+	"github.com/rekhin/generator/types"
 )
 
 func main() {
 	ctx := context.TODO()
-
-	// // TODO реализовать в следующем виде! см. ниже
-	// // start
-	// var (
-	// 	inmemoryRepo = inmemory.NewRepository()
-	// 	// inmemoryPub  = inmemory.NewPublisher(inmemoryRepo)
-	// 	inmemorySub = inmemory.NewSubscriber(inmemoryRepo)
-
-	// 	grpcRepo = grpc.NewRepository()
-	// 	grpcPub  = grpc.NewPublisher(grpcRepo)
-	// 	// grpcSub  = grpc.NewSubscriber(grpcRepo)
-	// )
-
-	// inmemorySub.SubscribeDeltaFunc(ctx, grpcPub.PublishDelta)
-	// inmemorySub.SubscribeDeltaHandler(ctx, grpcPub)
-	// // end
 
 	objectInmemoryRepository := inmemory.NewRepository()
 	// objectGrpcRepository := inmemory.NewRepository()
@@ -50,17 +35,47 @@ func main() {
 	}
 
 	if err := objectInmemoryRepository.CreateEntities(ctx,
-		sedmax.NewObject(1, sedmax.RootObjectID, "New object", 0),
-		sedmax.NewObject(777, sedmax.RootObjectID, "New object", 0),
+		types.Object{
+			Node: types.Node{
+				ID:       sedmax.ObjectID(1),
+				ParentID: sedmax.ObjectID(sedmax.RootObjectID),
+				Name:     "New object",
+				Sort:     0,
+			},
+		},
+		types.Object{
+			Node: types.Node{
+				ID:       sedmax.ObjectID(777),
+				ParentID: sedmax.ObjectID(sedmax.RootObjectID),
+				Name:     "New object",
+				Sort:     1,
+			},
+		},
 	); err != nil {
 		log.Fatalf("create failed: %s", err)
 	}
 
-	if err := objectInmemoryRepository.UpdateEntities(ctx, sedmax.NewObject(777, sedmax.RootObjectID, "New object", 0)); err != nil {
+	if err := objectInmemoryRepository.UpdateEntities(ctx,
+		types.Object{
+			Node: types.Node{
+				ID:       sedmax.ObjectID(777),
+				ParentID: sedmax.ObjectID(sedmax.RootObjectID),
+				Name:     "New object",
+				Sort:     1,
+			},
+		}); err != nil {
 		log.Fatalf("update failed: %s", err)
 	}
 
-	if err := objectInmemoryRepository.UpdateEntities(ctx, sedmax.NewObject(777, sedmax.RootObjectID, "My object", 0)); err != nil {
+	if err := objectInmemoryRepository.UpdateEntities(ctx,
+		types.Object{
+			Node: types.Node{
+				ID:       sedmax.ObjectID(777),
+				ParentID: sedmax.ObjectID(sedmax.RootObjectID),
+				Name:     "My object",
+				Sort:     1,
+			},
+		}); err != nil {
 		log.Fatalf("update failed: %s", err)
 	}
 
@@ -73,6 +88,6 @@ func main() {
 		log.Fatalf("read failed: %s", err)
 	}
 	for _, e := range entities {
-		log.Printf("read entity %v", e)
+		log.Printf("read entity %+v", e)
 	}
 }
